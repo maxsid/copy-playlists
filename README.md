@@ -1,4 +1,4 @@
-# copy-youtube-playlists
+# copy-playlists
 A web app that copies several public playlists into one of yours.
 
 ## Before start

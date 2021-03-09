@@ -6,7 +6,8 @@ ENV GOPATH=""
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
-RUN go build -trimpath -v -a -o copy-playlists -ldflags="-w -s"
+RUN go get -v -t -d ./...
+RUN go build -trimpath -a -o copy-playlists -ldflags="-w -s"
 
 RUN useradd -u 12345 user
 

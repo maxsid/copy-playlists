@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Copy playlists</title>
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="static/css/uikit.min.css" />
+    <!-- UIkit JS -->
+    <script src="static/js/uikit.min.js"></script>
+    <script src="static/js/uikit-icons.min.js"></script>
+    <!-- Fixes -->
+    <link rel="stylesheet" href="static/css/fixes.css">
+</head>
+<body>
+<div>
+    <div class="uk-container uk-container-small uk-margin-medium-top uk-margin-medium-bottom">
+        <form action="/copy" method="post">
+            <fieldset class="uk-fieldset">
+                <div uk-grid>
+                    <legend class="uk-legend uk-inline uk-width-expand">Your channel:
+                        {{ if and .Channel .Channel.Snippet }}
+                            {{ .Channel.Snippet.Title }}
+                        {{ else }}
+                        <span class="uk-text-danger">Snippet hasn't loaded</span>
+                        {{ end }}
+                    </legend>
+                    <div class="uk-inline uk-flex-right uk-width-auto">
+                        <a class="uk-button uk-button-danger" href="/destroy">Destroy Session</a>
+                        <div uk-dropdown>Your session data on this website (not YouTube or Google) will be deleted.</div>
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label for="user-playlist">Select your destination playlist</label>
+                    {{ if .UserPlaylists }}
+                        <select id="user-playlist" name="destination-playlist" class="uk-select">
+                            {{ range .UserPlaylists }}
+                                {{ if .Snippet }}
+                                <option value="{{ .Id }}">{{ .Snippet.Title }}</option>
+                                {{ else }}
+                                <option value="{{ .Id }}" class="uk-text-danger">No snippet!</option>
+                                {{ end }}
+                            {{ end }}
+                        </select>
+                    {{ else }}
+                        <span class="uk-text-danger">You do not have any playlists on your channel. Create and refresh this page.</span>
+                    {{ end }}
+                </div>
+                <div class="uk-margin">
+                    <label for="source-playlists-textarea">Source playlists</label>
+                    <textarea id="source-playlists-textarea" class="uk-textarea" name="links" rows="{{if .SourcePlaylists}}6{{else}}2{{end}}" placeholder="Playlists Links"></textarea>
+                </div>
+                <div class="uk-inline uk-margin-small uk-float-right">
+                    <input class="uk-input uk-button uk-button-primary" formaction="/add" name="check" value="Add" type="submit"{{if .NoUserPlaylists}} disabled{{end}}>
+                    <div uk-dropdown>All entered links to playlists will be checked.
+                        You'll see their names and the number of videos in the table.</div>
+                </div>
+                {{ if .SourcePlaylists }}
+                <div class="uk-margin">
+                    <table class="uk-table uk-table-striped">
+                        <thead>
+                        <tr>
+                            <th class="uk-table-shrink"></th>
+                            <th class="uk-table-shrink"></th>
+                            <th class="uk-table-expand">Title</th>
+                            <th class="uk-table-shrink">Videos Count</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ range $index, $playlist := .SourcePlaylists }}
+                        <tr>
+                            <td><input class="uk-checkbox" name="delete_{{$index}}" type="checkbox"></td>
+                            <td>
+                                {{ $thumbnailURL := GetThumbnailsUrl $playlist.Snippet }}
+                                {{ if $thumbnailURL }}
+                                    <img class="uk-preserve-width" src="{{$thumbnailURL}}" width="40" alt="">
+                                {{ end }}
+                            </td>
+                            <td>
+                                {{ if $playlist.Snippet }}
+                                    <a href="https://www.youtube.com/playlist?list={{$playlist.Id}}">{{$playlist.Snippet.Title}}</a>
+                                {{ else }}
+                                    <span class="uk-text-danger">???</span>
+                                {{ end }}
+                            </td>
+                            <td>
+                                {{ if $playlist.ContentDetails }}
+                                    {{ $playlist.ContentDetails.ItemCount }}
+                                {{ else }}
+                                    <span class="uk-text-danger">???</span>
+                                {{ end }}
+                            </td>
+                        </tr>
+                        {{ end }}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ .ItemsCount }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="uk-inline uk-float-left">
+                        <button class="uk-button uk-button-primary" type="submit">Copy</button>
+                        <div uk-dropdown>Copy all videos from the playlists table into your selected playlist.</div>
+                    </div>
+                    <div class="uk-inline uk-float-right">
+                        <button class="uk-button uk-button-danger" formaction="/delete" type="submit">Delete Selected</button>
+                        <div uk-dropdown>Delete selected playlists in the table.</div>
+                    </div>
+                </div>
+                {{ end }}
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

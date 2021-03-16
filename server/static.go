@@ -22,6 +22,10 @@ func static(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
 	t := mime.TypeByExtension(filepath.Ext(path))
-	c.Append(fiber.HeaderContentType, t)
+	if t == fiber.MIMEApplicationJavaScript { // add charset utf-8 for JS files, if it's not included
+		t = fiber.MIMEApplicationJavaScriptCharsetUTF8
+	}
+	c.Set(fiber.HeaderContentType, t)
+	c.Append(fiber.HeaderCacheControl, "public, max-age=31536000")
 	return c.SendStream(file)
 }

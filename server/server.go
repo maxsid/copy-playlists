@@ -23,6 +23,7 @@ var (
 		CookieName:     "session_id",
 		KeyGenerator:   utils.UUIDv4,
 		CookieHTTPOnly: true,
+		CookieSecure:   true,
 		CookieSameSite: "Lax",
 	}
 
@@ -60,6 +61,11 @@ func createApp() *fiber.App {
 }
 
 func initMiddlewares(app *fiber.App) {
+	app.Use(func(c *fiber.Ctx) error {
+		c.Append(fiber.HeaderXFrameOptions, "deny")          // ClickJacking protection
+		c.Append(fiber.HeaderXContentTypeOptions, "nosniff") // sniffing protection
+		return c.Next()
+	})
 	app.Use(middlewareLogger.New())
 	app.Use(middlewareRecover.New())
 	app.Use(middlewareCompress.New())
